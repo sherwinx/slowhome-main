@@ -2,19 +2,22 @@ export default async function handler(req, res) {
   try {
     const { path } = req.query;
 
-    // 只处理以 /proposal/ 开头的路径
-    if (!path || !path[0] || path[0] !== 'proposal') {
+    // path 是一个数组，第一个元素应该是 'proposal'
+    if (!path || !Array.isArray(path) || path[0] !== 'proposal') {
       return res.status(404).json({ error: 'Not found' });
     }
 
-    // 构建完整的资源路径
-    const resourcePath = path.slice(1).join('/'); // 移除 'proposal' 前缀
+    // 构建资源路径 - 移除 'proposal' 前缀
+    const resourcePath = path.slice(1).join('/');
     const targetUrl = `https://miao-surfing-game.vercel.app/${resourcePath}`;
+
+    console.log('Proxying request to:', targetUrl);
 
     // 获取资源
     const response = await fetch(targetUrl);
 
     if (!response.ok) {
+      console.log('Resource not found:', targetUrl);
       return res.status(response.status).json({ error: 'Resource not found' });
     }
 
@@ -23,7 +26,7 @@ export default async function handler(req, res) {
 
     // 设置响应头
     res.setHeader('Content-Type', contentType);
-    res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1年缓存
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
     res.setHeader('Access-Control-Allow-Origin', '*');
 
     // 对于二进制资源，使用 buffer
