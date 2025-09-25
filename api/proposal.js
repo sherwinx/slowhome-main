@@ -12,25 +12,21 @@ export default async function handler(req, res) {
     const baseUrl = 'https://miao-surfing-game.vercel.app';
 
     // 修复所有相对路径资源，避免重复替换
-    // 只替换不以 http 开头的路径
+    // 使用更通用的方法处理所有资源文件
 
-    // 处理 src 属性 - 只替换相对路径
-    html = html.replace(/src="(?!https?:\/\/)([^"]+\.(js|css|png|jpg|jpeg|gif|mp4|mov|wav|m4a))"/gi,
+    // 处理所有引号内的资源路径（包括中文字符）
+    // 匹配所有常见的资源文件扩展名，不论文件名是什么字符
+    html = html.replace(/(['"])((?!https?:\/\/)[^'"]*\.(js|css|png|jpg|jpeg|gif|mp4|mov|wav|m4a))\1/gi, function(match, quote, path, ext) {
+      // 确保路径不是以 ./ 开头的，如果是则移除
+      const cleanPath = path.replace(/^\.\//, '');
+      return quote + baseUrl + '/' + cleanPath + quote;
+    });
+
+    // 特别处理可能遗漏的相对路径
+    html = html.replace(/src="(?!https?:\/\/)([^"]*\.(js|css|png|jpg|jpeg|gif|mp4|mov|wav|m4a))"/gi,
       `src="${baseUrl}/$1"`);
-
-    // 处理 href 属性 - 只替换相对路径
-    html = html.replace(/href="(?!https?:\/\/)([^"]+\.css)"/gi,
+    html = html.replace(/href="(?!https?:\/\/)([^"]*\.css)"/gi,
       `href="${baseUrl}/$1"`);
-
-    // 处理在JavaScript中的图片加载路径 - 只替换相对路径
-    html = html.replace(/'(?!https?:\/\/)([^']+\.(png|jpg|jpeg|gif|mp4|mov))'/g,
-      `'${baseUrl}/$1'`);
-    html = html.replace(/"(?!https?:\/\/)([^"]+\.(png|jpg|jpeg|gif|mp4|mov))"/g,
-      `"${baseUrl}/$1"`);
-
-    // 处理可能的相对路径开头的资源
-    html = html.replace(/(['"])\.\/([^'"]+\.(png|jpg|jpeg|gif|js|css|mp4|mov|wav|m4a))\1/g,
-      `$1${baseUrl}/$2$1`);
 
     // 设置正确的响应头
     res.setHeader('Content-Type', 'text/html');
