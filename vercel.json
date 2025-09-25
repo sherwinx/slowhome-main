@@ -1,12 +1,23 @@
 {
   "rewrites": [
     {
-      "source": "/proposal/(.*)",
-      "destination": "https://miao-surfing-game.vercel.app/$1"
+      "source": "/proposal/:path*",
+      "destination": "https://miao-surfing-game.vercel.app/:path*"
     },
     {
       "source": "/proposal",
-      "destination": "https://miao-surfing-game.vercel.app/"
+      "destination": "https://miao-surfing-game.vercel.app/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/proposal/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        }
+      ]
     }
   ]
 }
