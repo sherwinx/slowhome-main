@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/proposal/(.*)",
+      "destination": "https://miao-surfing-game.vercel.app/$1"
+    },
+    {
+      "source": "/proposal",
+      "destination": "https://miao-surfing-game.vercel.app/"
+    }
+  ]
+}
